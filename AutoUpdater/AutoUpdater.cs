@@ -96,6 +96,7 @@ namespace AutoUpdater
                     try
                     {
                         var windowProgress = new System.Windows.Window();
+                        windowProgress.DragMove();
                         windowProgress.Height = 150;
                         windowProgress.Width = 400;
                         windowProgress.WindowStyle = WindowStyle.None;
