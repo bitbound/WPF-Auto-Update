@@ -19,14 +19,14 @@ namespace AutoUpdater
         {
             get
             {
-                return System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
+                return Application.ResourceAssembly.ManifestModule.Assembly.GetName().Name;
             }
         }
         public static string FileName
         {
             get
             {
-                return System.IO.Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                return Application.ResourceAssembly.ManifestModule.Name;
             }
         }
         // Call this from the MainWindow constructor.
@@ -45,7 +45,7 @@ namespace AutoUpdater
                 {
                     try
                     {
-                        System.IO.File.Copy(System.Reflection.Assembly.GetExecutingAssembly().Location, args[1], true);
+                        System.IO.File.Copy(Application.ResourceAssembly.ManifestModule.Assembly.Location, args[1], true);
                         success = true;
                     }
                     catch
@@ -80,7 +80,7 @@ namespace AutoUpdater
             var result = await httpClient.GetAsync(ServiceURI);
             var strServerVersion = await result.Content.ReadAsStringAsync();
             var serverVersion = Version.Parse(strServerVersion);
-            var thisVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+            var thisVersion = Application.ResourceAssembly.ManifestModule.Assembly.GetName().Version;
             if (serverVersion > thisVersion)
             {
                 var strFilePath = System.IO.Path.GetTempPath() + FileName;
@@ -117,7 +117,7 @@ namespace AutoUpdater
                         }
                         return;
                     }
-                    Process.Start(strFilePath, "\"" + System.Reflection.Assembly.GetExecutingAssembly().Location + "\"");
+                    Process.Start(strFilePath, "\"" + Application.ResourceAssembly.ManifestModule.Assembly.Location + "\"");
                     Application.Current.Shutdown();
                     return;
                 }
