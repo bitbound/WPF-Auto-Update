@@ -78,11 +78,9 @@ namespace AutoUpdater
             System.Net.WebClient webClient = new System.Net.WebClient();
             System.Net.Http.HttpClient httpClient = new System.Net.Http.HttpClient();
             var result = await httpClient.GetAsync(ServiceURI);
-            var strVersion = await result.Content.ReadAsStringAsync();
-            MessageBox.Show("Parsing version " + strVersion);
-            var serverVersion = Version.Parse(strVersion);
+            var strServerVersion = await result.Content.ReadAsStringAsync();
+            var serverVersion = Version.Parse(strServerVersion);
             var thisVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-            MessageBox.Show(String.Format("Comparing {0} to {1}.", serverVersion, thisVersion));
             if (serverVersion > thisVersion)
             {
                 var strFilePath = System.IO.Path.GetTempPath() + FileName;
