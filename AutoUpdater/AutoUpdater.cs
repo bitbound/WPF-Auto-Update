@@ -38,7 +38,7 @@ namespace AutoUpdater
             }
             var success = false;
             var args = Environment.GetCommandLineArgs();
-            if (args.Length > 1 && System.IO.File.Exists(args[1]))
+            if (args.Length > 1 && System.IO.File.Exists(args[1]) && System.IO.Path.GetFileName(args[1]) == FileName)
             {
                 var startTime = DateTime.Now;
                 while (DateTime.Now - startTime < TimeSpan.FromSeconds(30) && !success)
