@@ -1,19 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace AutoUpdater
+namespace WPF_Auto_Update
 {
-    public static class AutoUpdater
+    public static class Updater
     {
-        // The absolute URI of the remote EXE file whose version will be compared to the executing assembly's version.
+        // The absolute URI from where the latest EXE can be downloaded.
         public static string RemoteFileURI { get; set; }
-        // The URI that will respond to an HTTP GET request with the server file's assembly version (e.g. "1.3.0").  It must be parsable by Version.Parse().
+        // The URI that will respond to an HTTP GET request with the latest assembly version (e.g. "1.3.0").  It must be parsable by Version.Parse().
         public static string ServiceURI { get; set; }
+        // The length of time that a downloaded update will attempt to replace the original file before timing out.  Use Duration.Forever to specify no timeout and continue trying indefinitely.
+        public static Duration UpdateTimeout { get; set; } = TimeSpan.FromSeconds(30);
 
         public static string AppName
         {
@@ -36,16 +39,17 @@ namespace AutoUpdater
             {
                 throw new Exception("AutoUpdater - RemoteFileURI and ServiceURI must be set.");
             }
-            var success = false;
-            var args = Environment.GetCommandLineArgs();
-            if (args.Length > 1 && System.IO.File.Exists(args[1]) && System.IO.Path.GetFileName(args[1]) == FileName)
+           
+            var args = Environment.GetCommandLineArgs().ToList();
+            if (args.Contains("-wpfautoupdate") && args.Last() != "-wpfautoupdate" && File.Exists(args[args.IndexOf("-wpfautoupdate") + 1]) && Path.GetFileName(args[args.IndexOf("-wpfautoupdate") + 1]) == FileName)
             {
+                var success = false;
                 var startTime = DateTime.Now;
-                while (DateTime.Now - startTime < TimeSpan.FromSeconds(30) && !success)
+                while (DateTime.Now - startTime < UpdateTimeout && !success)
                 {
                     try
                     {
-                        System.IO.File.Copy(Application.ResourceAssembly.ManifestModule.Assembly.Location, args[1], true);
+                        File.Copy(Application.ResourceAssembly.ManifestModule.Assembly.Location, args[args.IndexOf("-wpfautoupdate") + 1], true);
                         success = true;
                     }
                     catch
@@ -62,7 +66,7 @@ namespace AutoUpdater
                 else
                 {
                     MessageBox.Show("Update successful!  " + AppName + " will now restart.", "Update Complete", MessageBoxButton.OK, MessageBoxImage.Information);
-                    Process.Start(args[1]);
+                    Process.Start(args[args.IndexOf("-wpfautoupdate") + 1]);
                 }
                 Application.Current.Shutdown();
                 return;
@@ -117,7 +121,21 @@ namespace AutoUpdater
                         }
                         return;
                     }
-                    Process.Start(strFilePath, "\"" + Application.ResourceAssembly.ManifestModule.Assembly.Location + "\"");
+                    var psi = new ProcessStartInfo(strFilePath, "-wpfautoupdate \"" + Application.ResourceAssembly.ManifestModule.Assembly.Location + "\"");
+
+                    // Check if target directory is writable with current privileges.  If not, start update process as admin.
+                    try
+                    {
+                        var installPath = Path.GetDirectoryName(Application.ResourceAssembly.ManifestModule.Assembly.Location);
+                        var fi = new FileInfo(Path.Combine(installPath, "Test.txt"));
+                        fi.Create();
+                        fi.Delete();
+                    }
+                    catch
+                    {
+                        psi.Verb = "runas";
+                    }
+                    Process.Start(psi);
                     Application.Current.Shutdown();
                     return;
                 }

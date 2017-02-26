@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace AutoUpdater
+namespace WPF_Auto_Update
 {
     /// <summary>
     /// Interaction logic for DownloadProgressControl.xaml

@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.25807.0
+VisualStudioVersion = 15.0.26206.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoUpdater", "AutoUpdater\AutoUpdater.csproj", "{46633882-6188-4B86-9B2C-F10DD4791F59}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPF-Auto-Update", "WPF_Auto_Updater\WPF-Auto-Update.csproj", "{46633882-6188-4B86-9B2C-F10DD4791F59}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
