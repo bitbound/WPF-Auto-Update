@@ -1,11 +1,14 @@
 # WPF-Auto-Update
 A C# class that provides automatic updating for WPF applications.
 
+### Installation  
+    PM> Install-Package WPF_Auto_Update 
+
 Namespace: WPF_Auto_Update
 
 Special Note: WPF-Auto-Update uses the command line switch "-wpfautoupdate" for signaling.  If your app handles command line arguments, make sure that one is allowed.
 
-Usage:
+### Usage  
 * Add WPF-Auto-Update.dll to your project references.
   * Hint: Use Fody/Costura (https://github.com/Fody/Costura) to seamlessly embed DLLs into your EXE!
 * Set the URIs in Updater.RemoteFileURI and Updater.ServiceURI.
