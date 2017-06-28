@@ -127,8 +127,8 @@ namespace WPF_Auto_Update
                     try
                     {
                         var installPath = Path.GetDirectoryName(Application.ResourceAssembly.ManifestModule.Assembly.Location);
-                        var fi = new FileInfo(Path.Combine(installPath, "Test.txt"));
-                        fi.Create();
+                        var fi = new FileInfo(Path.Combine(installPath, "WriteTest.txt"));
+                        fi.Create().Close();
                         fi.Delete();
                     }
                     catch
