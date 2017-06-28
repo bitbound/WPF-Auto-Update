@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>$id$</id>
+    <id>WPF_Auto_Update</id>
     <version>$version$</version>
-    <title>$title$</title>
+    <title>WPF_Auto_Update</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
