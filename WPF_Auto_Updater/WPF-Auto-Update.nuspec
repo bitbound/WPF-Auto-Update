@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>WPF_Auto_Update</id>
+    <version>$version$</version>
+    <title>WPF_Auto_Update</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>https://github.com/Jay-Rad/WPF-Auto-Update</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A C# class that provides automatic updating for WPF applications.</description>
+    <releaseNotes>Initial release.</releaseNotes>
+    <copyright>Copyright 2017 Translucency</copyright>
+    <tags>WPF Update C#</tags>
+  </metadata>
+</package>
