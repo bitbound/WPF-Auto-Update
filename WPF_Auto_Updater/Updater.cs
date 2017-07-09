@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -79,25 +81,26 @@ namespace WPF_Auto_Update
             {
                 throw new Exception("AutoUpdater - RemoteFileURI and ServiceURI must be set.");
             }
-            System.Net.WebClient webClient = new System.Net.WebClient();
-            System.Net.Http.HttpClient httpClient = new System.Net.Http.HttpClient();
-            var result = await httpClient.GetAsync(ServiceURI);
-            var strServerVersion = await result.Content.ReadAsStringAsync();
-            var serverVersion = Version.Parse(strServerVersion);
-            var thisVersion = Application.ResourceAssembly.ManifestModule.Assembly.GetName().Version;
-            if (serverVersion > thisVersion)
+            try
             {
-                var strFilePath = System.IO.Path.GetTempPath() + FileName;
-                var dialogResult = System.Windows.MessageBox.Show("A new version of " + AppName + " is available!  Would you like to download it now?  It's a no-fuss, instant process.", "New Version Available", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (dialogResult == MessageBoxResult.Yes)
+                WebClient webClient = new WebClient();
+                HttpClient httpClient = new HttpClient();
+                var result = await httpClient.GetAsync(ServiceURI);
+                var strServerVersion = await result.Content.ReadAsStringAsync();
+                var serverVersion = Version.Parse(strServerVersion);
+                var thisVersion = Application.ResourceAssembly.ManifestModule.Assembly.GetName().Version;
+                if (serverVersion > thisVersion)
                 {
-                    if (System.IO.File.Exists(strFilePath))
+                    var strFilePath = Path.GetTempPath() + FileName;
+                    var dialogResult = MessageBox.Show("A new version of " + AppName + " is available!  Would you like to download it now?", "New Version Available", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    if (dialogResult == MessageBoxResult.Yes)
                     {
-                        System.IO.File.Delete(strFilePath);
-                    }
-                    try
-                    {
-                        var windowProgress = new System.Windows.Window();
+                        if (File.Exists(strFilePath))
+                        {
+                            File.Delete(strFilePath);
+                        }
+
+                        var windowProgress = new Window();
                         windowProgress.DragMove();
                         windowProgress.Height = 150;
                         windowProgress.Width = 400;
@@ -112,41 +115,44 @@ namespace WPF_Auto_Update
                         await webClient.DownloadFileTaskAsync(new Uri(RemoteFileURI), strFilePath);
 
                         windowProgress.Close();
-                    }
-                    catch
-                    {
-                        if (!Silent)
+
+                        var psi = new ProcessStartInfo(strFilePath, "-wpfautoupdate \"" + Application.ResourceAssembly.ManifestModule.Assembly.Location + "\"");
+
+                        // Check if target directory is writable with current privileges.  If not, start update process as admin.
+                        try
                         {
-                            MessageBox.Show("Unable to contact the server.  Check your network connection or try again later.", "Server Unreachable", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                            var installPath = Path.GetDirectoryName(Application.ResourceAssembly.ManifestModule.Assembly.Location);
+                            var fi = new FileInfo(Path.Combine(installPath, "WriteTest.txt"));
+                            fi.Create().Close();
+                            fi.Delete();
                         }
+                        catch
+                        {
+                            psi.Verb = "runas";
+                        }
+                        Process.Start(psi);
+                        Application.Current.Shutdown();
                         return;
                     }
-                    var psi = new ProcessStartInfo(strFilePath, "-wpfautoupdate \"" + Application.ResourceAssembly.ManifestModule.Assembly.Location + "\"");
-
-                    // Check if target directory is writable with current privileges.  If not, start update process as admin.
-                    try
+                }
+                else
+                {
+                    if (!Silent)
                     {
-                        var installPath = Path.GetDirectoryName(Application.ResourceAssembly.ManifestModule.Assembly.Location);
-                        var fi = new FileInfo(Path.Combine(installPath, "WriteTest.txt"));
-                        fi.Create().Close();
-                        fi.Delete();
+                        MessageBox.Show(AppName + " is up-to-date.", "No Updates", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
-                    catch
-                    {
-                        psi.Verb = "runas";
-                    }
-                    Process.Start(psi);
-                    Application.Current.Shutdown();
-                    return;
                 }
             }
-            else
+            catch
             {
                 if (!Silent)
                 {
-                    MessageBox.Show(AppName + " is up-to-date.", "No Updates", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("Unable to contact the server.  Check your network connection or try again later.", "Server Unreachable", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 }
+                return;
+            
             }
+            
         }
     }
 }
