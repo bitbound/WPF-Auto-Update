@@ -56,9 +56,8 @@ namespace WPF_Auto_Update
                     }
                     catch
                     {
-                        success = false;
+                        System.Threading.Thread.Sleep(500);
                     }
-                    System.Threading.Thread.Sleep(500);
                 }
 
                 if (success == false)
@@ -116,20 +115,13 @@ namespace WPF_Auto_Update
 
                         windowProgress.Close();
 
-                        var psi = new ProcessStartInfo(strFilePath, "-wpfautoupdate \"" + Application.ResourceAssembly.ManifestModule.Assembly.Location + "\"");
-
-                        // Check if target directory is writable with current privileges.  If not, start update process as admin.
-                        try
+                        var psi = new ProcessStartInfo()
                         {
-                            var installPath = Path.GetDirectoryName(Application.ResourceAssembly.ManifestModule.Assembly.Location);
-                            var fi = new FileInfo(Path.Combine(installPath, "WriteTest.txt"));
-                            fi.Create().Close();
-                            fi.Delete();
-                        }
-                        catch
-                        {
-                            psi.Verb = "runas";
-                        }
+                            FileName = strFilePath,
+                            Arguments = $"-wpfautoupdate \"${Application.ResourceAssembly.ManifestModule.Assembly.Location}\"",
+                            Verb = "RunAs"
+                        };
+                       
                         Process.Start(psi);
                         Application.Current.Shutdown();
                         return;
